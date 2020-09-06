@@ -1,43 +1,52 @@
 <template>
-  <div class="Home">
+  <div class="Housework">
     <v-container fluid >
-      <v-row>
-        <v-col cols="12">
+      <v-row >
+        <v-col cols="4">
           <v-btn
             color="accent"
-            block
+            fab
           >
-            <v-icon>mdi-home</v-icon>
+              料理
           </v-btn>
         </v-col>
 
         <v-col cols="4">
           <v-btn
             color="accent"
-            block
+            fab
           >
-            <v-icon>mdi-currency-cny</v-icon>
+              洗濯
           </v-btn>
         </v-col>
 
         <v-col cols="4">
           <v-btn
             color="accent"
-            block
+            fab
           >
-            <v-icon>mdi-gift</v-icon>
+            掃除
           </v-btn>
         </v-col>
 
         <v-col cols="4">
           <v-btn
             color="accent"
-            block
-            to="/housework"
+            fab
           >
-            <v-icon>mdi-washing-machine</v-icon>
+            ゴミ出し
           </v-btn>
         </v-col>
+
+        <v-col cols="4">
+          <v-btn
+            color="accent"
+            fab
+          >
+            etc
+          </v-btn>
+        </v-col>
+
       </v-row>
     </v-container>
   </div>
@@ -46,7 +55,7 @@
 <script>
 
   export default {
-    name: 'Home',
+    name: 'Housework',
 
     components: {
     },
