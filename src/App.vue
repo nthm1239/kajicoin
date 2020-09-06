@@ -14,6 +14,7 @@
             dark
             v-bind="attrs"
             v-on="on"
+            text
           >
             <v-icon>mdi-account</v-icon>
           </v-btn>
