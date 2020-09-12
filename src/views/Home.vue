@@ -9,6 +9,7 @@
                 color="accent"
                 block
                 height='100%'
+                :to='menu.to'
               >
                 <v-icon :size="iconSize">{{menu.icon}}</v-icon>
               </v-btn>
@@ -29,7 +30,7 @@
         { title: 'home', icon: 'mdi-home' },
         { title: 'currency', icon: 'mdi-currency-cny' },
         { title: 'gift', icon: 'mdi-gift' },
-        { title: 'kaji', icon: 'mdi-washing-machine'},
+        { title: 'kaji', icon: 'mdi-washing-machine', to: '/housework'},
       ],
       windowSize: {
         x: 0,
