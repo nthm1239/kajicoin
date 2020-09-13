@@ -23,15 +23,15 @@
                     <v-container>
                       <v-row>
                         <v-col cols="12">
-                          <v-text-field label="ひとこと" ></v-text-field>
+                          <v-text-field label="ひとこと" v-model="comment"></v-text-field>
                         </v-col>
                       </v-row>
                     </v-container>
                   </v-card-text>
                   <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="green darken-1" text @click="menu.dialog = false">キャンセル</v-btn>
-                    <v-btn color="green darken-1" text @click="menu.dialog = false">完了</v-btn>
+                    <v-btn color="green darken-1" text @click="cancel(menu)">キャンセル</v-btn>
+                    <v-btn color="green darken-1" text @click="register(menu)">完了</v-btn>
                   </v-card-actions>
                 </v-card>
               </v-dialog>
@@ -44,17 +44,19 @@
 </template>
 
 <script>
+import firebase from 'firebase'
 
   export default {
     name: 'Housework',
 
     data: () => ({
+      comment: '',
       menus: [
         { title: 'cook', label: '料理', icon: '', dialog: false },
-        { title: '', label: '洗濯', icon: 'mdi-washing-machine', dialog: false },
-        { title: '', label: '掃除', icon: '', dialog: false },
-        { title: '', label: 'ゴミ出し', icon: '', dialog: false },
-        { title: '', label: 'etc', icon: '', dialog: false },
+        { title: 'washing', label: '洗濯', icon: 'mdi-washing-machine', dialog: false },
+        { title: 'clean', label: '掃除', icon: '', dialog: false },
+        { title: 'garbage remove', label: 'ゴミ出し', icon: '', dialog: false },
+        { title: 'et cetera', label: 'etc', icon: '', dialog: false },
       ],
       windowSize: {
         x: 0,
@@ -76,6 +78,40 @@
       onResize () {
         this.windowSize = { x: window.innerWidth, y: window.innerHeight }
       },
+      cancel (menu) {
+        this.comment = ''
+        menu.dialog = false
+      },
+      register (menu) {
+        console.log(menu)
+
+        let household = "householdA"
+
+        let currentDateString = this.getNowYMDhm();
+        console.log(currentDateString)
+
+        firebase.database().ref(`/housework/${household}`).push({
+          "name": menu.title,
+          "details": this.comment,
+          "start": currentDateString,
+          "end": currentDateString,
+          "color": "primary",
+          "timed": true
+        })
+
+        this.comment = ''
+        menu.dialog = false
+      },
+      getNowYMDhm() {
+        var dt = new Date();
+        var year = dt.getFullYear();
+        var month = ("00" + (dt.getMonth()+1)).slice(-2);
+        var day = ("00" + dt.getDate()).slice(-2);
+        var hour = ("00" + dt.getHours()).slice(-2);
+        var minute = ("00" + dt.getMinutes()).slice(-2);
+        var result = `${year}-${month}-${day} ${hour}:${minute}`;
+        return result;
+      }
     },
     components: {
     },

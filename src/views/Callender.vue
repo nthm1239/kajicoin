@@ -122,7 +122,9 @@ import firebase from 'firebase'
 
         firebase.database().ref(`/housework/${household}`)
             .once('value',(snapshot) => {
-                this.events= snapshot.val()
+                for (let key in snapshot.val()) {
+                    this.events.push(snapshot.val()[key])
+                }
             })
 
     },
