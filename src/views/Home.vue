@@ -1,6 +1,6 @@
 <template>
   <div class="Home">
-    <v-container fluid >
+    <v-container>
       <v-row>
         <v-col cols="12">
           <v-row v-resize="onResize" :style="style" >
