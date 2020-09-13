@@ -92,6 +92,7 @@
 </template>
 
 <script>
+import firebase from 'firebase'
 
   export default {
     name: 'Callender',
@@ -116,6 +117,14 @@
 
     mounted () {
       this.onResize()
+
+      let household = "householdA"
+
+        firebase.database().ref(`/housework/${household}`)
+            .once('value',(snapshot) => {
+                this.events= snapshot.val()
+            })
+
     },
     methods: {
       onResize () {
