@@ -70,6 +70,7 @@
                         <v-toolbar-title v-html="selectedEvent.name"></v-toolbar-title>
                         </v-toolbar>
                         <v-card-text>
+                        <span v-html="selectedEvent.actor"></span>
                         <span v-html="selectedEvent.details"></span>
                         </v-card-text>
                         <v-card-actions>

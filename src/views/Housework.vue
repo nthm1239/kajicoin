@@ -13,6 +13,7 @@
                     height="100%"
                     v-bind="attrs"
                     v-on="on"
+                    @click="completeDt = getNowYMDhm()"
                   >
                     {{menu.label}}
                   </v-btn>
@@ -23,6 +24,8 @@
                     <v-container>
                       <v-row>
                         <v-col cols="12">
+                          <v-text-field label="実施者" v-model="actor"></v-text-field>
+                          <v-text-field label="実施日時" v-model="completeDt"></v-text-field>
                           <v-text-field label="ひとこと" v-model="comment"></v-text-field>
                         </v-col>
                       </v-row>
@@ -50,7 +53,9 @@ import firebase from 'firebase'
     name: 'Housework',
 
     data: () => ({
+      actor: '',
       comment: '',
+      completeDt: '',
       menus: [
         { title: 'cook', label: '料理', icon: '', dialog: false },
         { title: 'washing', label: '洗濯', icon: 'mdi-washing-machine', dialog: false },
@@ -79,7 +84,9 @@ import firebase from 'firebase'
         this.windowSize = { x: window.innerWidth, y: window.innerHeight }
       },
       cancel (menu) {
+        this.actor = ''
         this.comment = ''
+        this.completeDt = ''
         menu.dialog = false
       },
       register (menu) {
@@ -87,19 +94,19 @@ import firebase from 'firebase'
 
         let household = "householdA"
 
-        let currentDateString = this.getNowYMDhm();
-        console.log(currentDateString)
-
         firebase.database().ref(`/housework/${household}`).push({
-          "name": menu.title,
+          "name": menu.label,
           "details": this.comment,
-          "start": currentDateString,
-          "end": currentDateString,
+          "actor": this.actor,
+          "start": this.completeDt,
+          "end": this.completeDt,
           "color": "primary",
           "timed": true
         })
 
+        this.actor = ''
         this.comment = ''
+        this.completeDt = ''
         menu.dialog = false
       },
       getNowYMDhm() {
