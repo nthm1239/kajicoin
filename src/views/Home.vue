@@ -27,7 +27,7 @@
     name: 'Home',
     data: () => ({
       menus: [
-        { title: 'home', icon: 'mdi-home' },
+        { title: 'home', icon: 'mdi-home', to: '/callender' },
         { title: 'currency', icon: 'mdi-currency-cny' },
         { title: 'gift', icon: 'mdi-gift' },
         { title: 'kaji', icon: 'mdi-washing-machine', to: '/housework'},

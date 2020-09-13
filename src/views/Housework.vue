@@ -2,32 +2,7 @@
   <div class="Housework">
     <v-container>
       <v-row>
-        <v-col cols="6">
-          <v-sheet :height="windowSize.y * 0.8 ">
-            <v-calendar
-              color="primary"
-              type="day"
-            >
-              <template v-slot:day-header="{ present }">
-                <template
-                  v-if="present"
-                  class="text-center"
-                >
-                  Today
-                </template>
-              </template>
-
-              <template v-slot:interval="{ hour }">
-                <div
-                  class="text-center"
-                >
-                  {{ hour }} o'clock
-                </div>
-              </template>
-            </v-calendar>
-          </v-sheet>
-        </v-col>
-        <v-col cols="6">
+        <v-col cols="12">
           <v-row v-resize="onResize" :style="style" >
             <v-col cols="12" v-for="menu in menus" v-bind:key="menu.key">
               <v-dialog v-model="menu.dialog" persistent max-width="290">
