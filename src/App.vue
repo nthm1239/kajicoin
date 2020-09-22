@@ -14,12 +14,16 @@
             dark
             v-bind="attrs"
             v-on="on"
+            text
           >
             <v-icon>mdi-account</v-icon>
           </v-btn>
         </template>
 
         <v-list dense>
+          <v-list-item>
+            {{ user.user.name }}
+          </v-list-item>
           <v-list-item>
             {{ user.email }}
           </v-list-item>
