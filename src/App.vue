@@ -22,6 +22,9 @@
 
         <v-list dense>
           <v-list-item>
+            {{ user.user.name }}
+          </v-list-item>
+          <v-list-item>
             {{ user.email }}
           </v-list-item>
 

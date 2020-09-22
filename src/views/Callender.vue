@@ -113,20 +113,23 @@ import firebase from 'firebase'
         x: 0,
         y: 0,
       },
-      iconSize: 0 
+      iconSize: 0, 
+      household: null
     }),
 
     mounted () {
       this.onResize()
 
-      let household = "householdA"
+      // 世帯IDを取得
+      this.household = this.$store.getters.user.user.households.findIndex((value) => value)
 
-        firebase.database().ref(`/housework/${household}`)
-            .once('value',(snapshot) => {
-                for (let key in snapshot.val()) {
-                    this.events.push(snapshot.val()[key])
-                }
-            })
+      // 家事一覧を取得
+      firebase.database().ref(`/housework/${this.household}`)
+          .once('value',(snapshot) => {
+              for (let key in snapshot.val()) {
+                  this.events.push(snapshot.val()[key])
+              }
+          })
 
     },
     methods: {

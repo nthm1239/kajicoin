@@ -24,7 +24,13 @@
                     <v-container>
                       <v-row>
                         <v-col cols="12">
-                          <v-text-field label="実施者" v-model="actor"></v-text-field>
+                          <v-select 
+                            :items="families" 
+                            item-text="name"
+                            label="実施者" 
+                            v-model="actor"
+                            >
+                          </v-select>
                           <v-text-field label="実施日時" v-model="completeDt"></v-text-field>
                           <v-text-field label="ひとこと" v-model="comment"></v-text-field>
                         </v-col>
@@ -56,6 +62,7 @@ import firebase from 'firebase'
       actor: '',
       comment: '',
       completeDt: '',
+      families: [],
       menus: [
         { title: 'cook', label: '料理', icon: '', dialog: false },
         { title: 'washing', label: '洗濯', icon: 'mdi-washing-machine', dialog: false },
@@ -67,10 +74,27 @@ import firebase from 'firebase'
         x: 0,
         y: 0,
       },
+      household: null
     }),
 
     mounted () {
       this.onResize()
+
+      // 世帯IDを取得
+      this.household = this.$store.getters.user.user.households.findIndex((value) => value)
+
+      // 家族一覧を取得
+      let ref = firebase.database().ref()
+      ref.child("household").child(this.household).child("users")
+        .once('value',(snapshot) => {
+          for (let userId in snapshot.val()) {
+            ref.child("user").child(userId)
+              .once('value',(snapshotUser) => {
+                this.families.push(snapshotUser.val())
+              })
+          }
+      })
+
     },
 
     computed: {
@@ -90,11 +114,7 @@ import firebase from 'firebase'
         menu.dialog = false
       },
       register (menu) {
-        console.log(menu)
-
-        let household = "householdA"
-
-        firebase.database().ref(`/housework/${household}`).push({
+        firebase.database().ref(`/housework/${this.household}`).push({
           "name": menu.label,
           "details": this.comment,
           "actor": this.actor,

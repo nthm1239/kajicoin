@@ -29,9 +29,17 @@ export default {
     },
     onAuth() {
         firebase.auth().onAuthStateChanged(user => {
-            user = user ? user : {};
-            store.commit('onAuthStateChanged', user);
-            store.commit('onUserStatusChanged', user.uid ? true : false);
+            if (user) {
+                firebase.database().ref(`/user/${user.uid}`)
+                    .once('value',(snapshot) => {
+                        user.user = snapshot.val()
+                        store.commit('onAuthStateChanged', user);
+                        store.commit('onUserStatusChanged', true);
+                })
+            } else {
+                store.commit('onAuthStateChanged', {});
+                store.commit('onUserStatusChanged', false);
+            }
         });
     }
 };
