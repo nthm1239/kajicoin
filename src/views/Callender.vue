@@ -2,7 +2,7 @@
   <div class="Callender">
     <v-container>
         <v-row>
-            <v-col cols="12">
+            <v-col cols="9">
                 <v-toolbar flat color="white">
                     <v-btn outlined class="mr-4" color="grey darken-2" @click="setToday">
                         Today
@@ -89,6 +89,9 @@
 
                 </v-sheet>
             </v-col>
+            <v-col cols="3">
+              <Housework/>
+            </v-col>
         </v-row>
     </v-container>
   </div>
@@ -96,6 +99,7 @@
 
 <script>
 import firebase from 'firebase'
+import Housework from './Housework.vue'
 
   export default {
     name: 'Callender',
@@ -186,6 +190,7 @@ import firebase from 'firebase'
       },
     },
     components: {
+      Housework
     },
   }
 </script>
