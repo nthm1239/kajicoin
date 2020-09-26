@@ -50,13 +50,14 @@
                     color="primary"
                     :type="currentCallenderType"
                     :events="events"
+                    :event-color="getEventColor"
                     @click:event="showEvent"
                     ></v-calendar>
                     <v-menu
-                    v-model="selectedOpen"
-                    :close-on-content-click="false"
-                    :activator="selectedElement"
-                    offset-x
+                      v-model="selectedOpen"
+                      :close-on-content-click="false"
+                      :activator="selectedElement"
+                      offset-x
                     >
                     <v-card
                         color="grey lighten-4"
@@ -64,19 +65,20 @@
                         flat
                     >
                         <v-toolbar
-                        :color="selectedEvent.color"
+                        :color="getEventColor(selectedEvent)"
                         dark
                         >
                         <v-toolbar-title v-html="selectedEvent.name"></v-toolbar-title>
+                        <v-spacer></v-spacer>
+                        <span v-html="selectedEvent.actor"></span>
                         </v-toolbar>
                         <v-card-text>
-                        <span v-html="selectedEvent.actor"></span>
                         <span v-html="selectedEvent.details"></span>
                         </v-card-text>
                         <v-card-actions>
                         <v-btn
                             text
-                            color="secondary"
+                            color="primary"
                             @click="selectedOpen = false"
                         >
                             Close
@@ -99,6 +101,8 @@ import firebase from 'firebase'
     name: 'Callender',
     data: () => ({
       focus: '',
+      families: [],
+      color: '',
       currentCallenderType: 'day',
       callenderTypeToLabel: {
         month: 'Month',
@@ -131,6 +135,18 @@ import firebase from 'firebase'
               }
           })
 
+      // 家族一覧を取得
+      let ref = firebase.database().ref()
+      ref.child("household").child(this.household).child("users")
+        .once('value',(snapshot) => {
+          for (let userId in snapshot.val()) {
+            ref.child("user").child(userId)
+              .once('value',(snapshotUser) => {
+                this.families.push(snapshotUser.val())
+              })
+          }
+      })
+
     },
     methods: {
       onResize () {
@@ -160,6 +176,13 @@ import firebase from 'firebase'
           open()
         }
         nativeEvent.stopPropagation()
+      },
+      getEventColor (event) {
+        if(event.actorUserId != null) {
+          return this.families.filter((user) => user.id == event.actorUserId)[0].color.toString()
+        } else {
+          return "secondary"
+        }
       },
     },
     components: {

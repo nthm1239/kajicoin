@@ -27,8 +27,9 @@
                           <v-select 
                             :items="families" 
                             item-text="name"
+                            item-value="id"
                             label="実施者" 
-                            v-model="actor"
+                            v-model="actorUserId"
                             >
                           </v-select>
                           <v-text-field label="実施日時" v-model="completeDt"></v-text-field>
@@ -59,7 +60,7 @@ import firebase from 'firebase'
     name: 'Housework',
 
     data: () => ({
-      actor: '',
+      actorUserId: '',
       comment: '',
       completeDt: '',
       families: [],
@@ -108,7 +109,7 @@ import firebase from 'firebase'
         this.windowSize = { x: window.innerWidth, y: window.innerHeight }
       },
       cancel (menu) {
-        this.actor = ''
+        this.actorUserId = ''
         this.comment = ''
         this.completeDt = ''
         menu.dialog = false
@@ -117,14 +118,14 @@ import firebase from 'firebase'
         firebase.database().ref(`/housework/${this.household}`).push({
           "name": menu.label,
           "details": this.comment,
-          "actor": this.actor,
+          "actorUserId": this.actorUserId,
           "start": this.completeDt,
           "end": this.completeDt,
           "color": "primary",
           "timed": true
         })
 
-        this.actor = ''
+        this.actorUserId = ''
         this.comment = ''
         this.completeDt = ''
         menu.dialog = false
