@@ -107,7 +107,7 @@ import Housework from './Housework.vue'
       focus: '',
       families: [],
       color: '',
-      currentCallenderType: 'day',
+      currentCallenderType: 'month',
       callenderTypeToLabel: {
         month: 'Month',
         week: 'Week',
