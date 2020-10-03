@@ -43,7 +43,7 @@
                     </v-menu>
                 </v-toolbar>
 
-                <v-sheet :height="windowSize.y * 0.8 ">
+                <v-sheet :height="windowSize.y * 0.75 ">
                     <v-calendar
                     ref="calendar"
                     v-model="focus"
