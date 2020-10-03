@@ -3,9 +3,16 @@
     <v-container>
       <v-row>
         <v-col cols="12">
+          <v-icon :size="iconSize">mdi-home</v-icon>
+          {{household.name}}
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col cols="12">
             <v-data-table
                 :headers="headers"
                 :items="families"
+                hide-default-header
                 hide-default-footer
             >
             </v-data-table>
@@ -26,7 +33,11 @@ import firebase from 'firebase'
           {
             text: '名前',
             value: 'name',
-          }       
+          },
+          {
+            text: '家事コイン',
+            value: 'account.balance',
+          }
       ],
       families: [],
       windowSize: {
@@ -57,7 +68,13 @@ import firebase from 'firebase'
           for (let userId in snapshot.val()) {
             ref.child("user").child(userId)
               .once('value',(snapshotUser) => {
-                this.families.push(snapshotUser.val())
+                let user = snapshotUser.val();
+                ref.child("accounts").child(user.accountId)
+                  .once('value',(snapshotAccount) => {
+                    console.log(snapshotAccount)
+                    user.account = snapshotAccount.val();
+                    this.families.push(user)
+                  })
               })
           }
       })
