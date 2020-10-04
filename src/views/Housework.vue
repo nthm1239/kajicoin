@@ -99,7 +99,12 @@ import firebase from 'firebase'
           for (let userId in snapshot.val()) {
             ref.child("user").child(userId)
               .once('value',(snapshotUser) => {
-                this.families.push(snapshotUser.val())
+                let user = snapshotUser.val();
+                ref.child("accounts").child(user.accountId)
+                  .once('value',(snapshotAccount) => {
+                    user.account = snapshotAccount.val();
+                    this.families.push(user)
+                  })
               })
           }
       })
@@ -133,7 +138,11 @@ import firebase from 'firebase'
           "timed": true
         })
 
-        this.actorUserId = ''
+        // 残高を更新
+        let account = this.families[this.families.findIndex((user) => user.id === this.actorUserId)].account
+        firebase.database().ref(`/accounts/${account.accountId}/balance`).set(account.balance + 10)
+
+        this.actorUserId = this.$store.getters.user.user.id
         this.comment = ''
         this.completeDt = ''
         menu.dialog = false
