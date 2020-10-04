@@ -90,6 +90,7 @@
                 </v-sheet>
             </v-col>
             <v-col cols="3">
+              <House/>
               <Housework/>
             </v-col>
         </v-row>
@@ -99,6 +100,7 @@
 
 <script>
 import firebase from 'firebase'
+import House from './House.vue'
 import Housework from './Housework.vue'
 
   export default {
@@ -190,6 +192,7 @@ import Housework from './Housework.vue'
       },
     },
     components: {
+      House,
       Housework
     },
   }
