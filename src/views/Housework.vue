@@ -14,11 +14,15 @@
                     v-on="on"
                     @click="completeDt = getNowYMDhm()"
                   >
+                    <v-icon>{{ menu.icon }}</v-icon>
                     {{menu.label}}
                   </v-btn>
                 </template>
                 <v-card>
-                  <v-card-title class="headline">{{ menu.label }}</v-card-title>
+                  <v-card-title class="headline">
+                    <v-icon>{{ menu.icon }}</v-icon>
+                    {{ menu.label }}
+                  </v-card-title>
                   <v-card-text>
                     <v-container>
                       <v-row>
@@ -60,6 +64,7 @@
 
 <script>
 import firebase from 'firebase'
+import '@/assets/icomoon/style.css'
 
   export default {
     name: 'Housework',
@@ -70,11 +75,11 @@ import firebase from 'firebase'
       completeDt: '',
       families: [],
       menus: [
-        { title: 'cook', label: '料理', icon: '', dialog: false },
-        { title: 'washing', label: '洗濯', icon: 'mdi-washing-machine', dialog: false },
-        { title: 'clean', label: '掃除', icon: '', dialog: false },
-        { title: 'garbage remove', label: 'ゴミ出し', icon: '', dialog: false },
-        { title: 'et cetera', label: 'etc', icon: '', dialog: false },
+        { title: 'cook', label: '料理', icon: 'icon-kjc-cook', dialog: false },
+        { title: 'washing', label: '洗濯', icon: 'icon-kjc-washing', dialog: false },
+        { title: 'clean', label: '掃除', icon: 'icon-kjc-clean', dialog: false },
+        { title: 'garbage remove', label: 'ゴミ出し', icon: 'icon-kjc-garbage-remove', dialog: false },
+        { title: 'et cetera', label: 'etc', icon: 'icon-kjc-etcetera', dialog: false },
       ],
       windowSize: {
         x: 0,
