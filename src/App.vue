@@ -5,8 +5,20 @@
       color="primary"
       dark
     >
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-      <v-toolbar-title>Application</v-toolbar-title>
+      <!-- <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon> -->
+      <v-toolbar-title>Kajicoin</v-toolbar-title>
+      <v-btn
+        to='/callender'
+        icon
+      >
+        <v-icon>mdi-calendar</v-icon>
+      </v-btn>
+      <v-btn
+        to='/house'
+        icon
+      >
+        <v-icon>mdi-home</v-icon>
+      </v-btn>
       <v-spacer></v-spacer>
       <v-menu offset-y v-if="this.userStatus">
         <template v-slot:activator="{ on, attrs }">
@@ -39,7 +51,7 @@
       </v-menu>          
     </v-app-bar>
 
-    <v-navigation-drawer
+    <!-- <v-navigation-drawer
       v-if="this.userStatus"
       v-model="drawer"
       app
@@ -64,7 +76,7 @@
         </v-list-item>
       </v-list>
 
-    </v-navigation-drawer>
+    </v-navigation-drawer> -->
 
 
     <v-main>

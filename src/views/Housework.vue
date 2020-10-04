@@ -3,14 +3,13 @@
     <v-container>
       <v-row>
         <v-col cols="12">
-          <v-row v-resize="onResize" :style="style" >
-            <v-col cols="12" v-for="menu in menus" v-bind:key="menu.key">
+          <v-row v-resize="onResize" >
+            <v-col cols="6" v-for="menu in menus" v-bind:key="menu.key">
               <v-dialog v-model="menu.dialog" persistent max-width="290">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn
                     color="accent"
                     block
-                    height="100%"
                     v-bind="attrs"
                     v-on="on"
                     @click="completeDt = getNowYMDhm()"
@@ -24,13 +23,20 @@
                     <v-container>
                       <v-row>
                         <v-col cols="12">
-                          <v-select 
+                          <v-radio-group
                             :items="families" 
                             item-text="name"
-                            label="実施者" 
-                            v-model="actor"
+                            item-value="id"
+                            v-model="actorUserId"
+                            row
                             >
-                          </v-select>
+                            <template v-for="user in families">
+                              <v-radio :key="user.id"
+                                :label="user.name"
+                                :value="user.id"
+                              />
+                            </template>
+                          </v-radio-group>
                           <v-text-field label="実施日時" v-model="completeDt"></v-text-field>
                           <v-text-field label="ひとこと" v-model="comment"></v-text-field>
                         </v-col>
@@ -59,7 +65,7 @@ import firebase from 'firebase'
     name: 'Housework',
 
     data: () => ({
-      actor: '',
+      actorUserId: '',
       comment: '',
       completeDt: '',
       families: [],
@@ -80,6 +86,9 @@ import firebase from 'firebase'
     mounted () {
       this.onResize()
 
+      // 
+      this.actorUserId = this.$store.getters.user.user.id;
+
       // 世帯IDを取得
       this.household = this.$store.getters.user.user.households.findIndex((value) => value)
 
@@ -90,7 +99,12 @@ import firebase from 'firebase'
           for (let userId in snapshot.val()) {
             ref.child("user").child(userId)
               .once('value',(snapshotUser) => {
-                this.families.push(snapshotUser.val())
+                let user = snapshotUser.val();
+                ref.child("accounts").child(user.accountId)
+                  .once('value',(snapshotAccount) => {
+                    user.account = snapshotAccount.val();
+                    this.families.push(user)
+                  })
               })
           }
       })
@@ -108,7 +122,7 @@ import firebase from 'firebase'
         this.windowSize = { x: window.innerWidth, y: window.innerHeight }
       },
       cancel (menu) {
-        this.actor = ''
+        this.actorUserId = this.$store.getters.user.user.id
         this.comment = ''
         this.completeDt = ''
         menu.dialog = false
@@ -117,14 +131,18 @@ import firebase from 'firebase'
         firebase.database().ref(`/housework/${this.household}`).push({
           "name": menu.label,
           "details": this.comment,
-          "actor": this.actor,
+          "actorUserId": this.actorUserId,
           "start": this.completeDt,
           "end": this.completeDt,
           "color": "primary",
           "timed": true
         })
 
-        this.actor = ''
+        // 残高を更新
+        let account = this.families[this.families.findIndex((user) => user.id === this.actorUserId)].account
+        firebase.database().ref(`/accounts/${account.accountId}/balance`).set(account.balance + 10)
+
+        this.actorUserId = this.$store.getters.user.user.id
         this.comment = ''
         this.completeDt = ''
         menu.dialog = false
