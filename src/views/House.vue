@@ -15,6 +15,14 @@
                 hide-default-header
                 hide-default-footer
             >
+              <template v-slot:[`item.name`]="{ item }">
+                <v-icon :color="item.color">mdi-account</v-icon>
+                {{ item.name }}
+              </template>
+              <template v-slot:[`item.account.balanc`]="{ item }">
+                <v-icon>icon-kjc-coin</v-icon>
+                {{ item.account.balance }}
+              </template>
             </v-data-table>
         </v-col>
       </v-row>
@@ -24,6 +32,7 @@
 
 <script>
 import firebase from 'firebase'
+import '@/assets/icomoon/style.css'
 
   export default {
     name: 'House',
