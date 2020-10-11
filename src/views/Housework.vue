@@ -5,14 +5,18 @@
         <v-col cols="12">
           <v-row v-resize="onResize" >
             <v-col cols="6" v-for="menu in menus" v-bind:key="menu.key">
-              <v-dialog v-model="menu.dialog" persistent max-width="290">
+              <v-dialog 
+                v-model="menu.dialog" 
+                persistent 
+                max-width="290"
+                @click:outside="menu.dialog=false"
+              >
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn
                     color="accent"
                     block
                     v-bind="attrs"
                     v-on="on"
-                    @click="completeDt = getNowYMDhm()"
                   >
                     <v-icon>{{ menu.icon }}</v-icon>
                     {{menu.label}}
@@ -41,7 +45,6 @@
                               />
                             </template>
                           </v-radio-group>
-                          <v-text-field label="実施日時" v-model="completeDt"></v-text-field>
                           <v-text-field label="ひとこと" v-model="comment"></v-text-field>
                         </v-col>
                       </v-row>
@@ -68,11 +71,12 @@ import '@/assets/icomoon/style.css'
 
   export default {
     name: 'Housework',
-
+    props: {
+      selectedDt: String,
+    },
     data: () => ({
       actorUserId: '',
       comment: '',
-      completeDt: '',
       families: [],
       menus: [
         { title: 'cook', label: '料理', icon: 'icon-kjc-cook', dialog: false },
@@ -129,7 +133,6 @@ import '@/assets/icomoon/style.css'
       cancel (menu) {
         this.actorUserId = this.$store.getters.user.user.id
         this.comment = ''
-        this.completeDt = ''
         menu.dialog = false
       },
       register (menu) {
@@ -137,8 +140,8 @@ import '@/assets/icomoon/style.css'
           "name": menu.label,
           "details": this.comment,
           "actorUserId": this.actorUserId,
-          "start": this.completeDt,
-          "end": this.completeDt,
+          "start": this.selectedDt,
+          "end": this.selectedDt,
           "color": "primary",
           "timed": true
         })
@@ -149,7 +152,6 @@ import '@/assets/icomoon/style.css'
 
         this.actorUserId = this.$store.getters.user.user.id
         this.comment = ''
-        this.completeDt = ''
         menu.dialog = false
       },
       getNowYMDhm() {

@@ -44,54 +44,78 @@
                 </v-toolbar>
 
                 <v-sheet :height="windowSize.y * 0.75 ">
-                    <v-calendar
+                  <v-calendar
                     ref="calendar"
                     v-model="focus"
                     color="primary"
                     :type="currentCallenderType"
                     :events="events"
                     :event-color="getEventColor"
+                    @click:date="showHouseworkDialog"
                     @click:event="showEvent"
-                    ></v-calendar>
-                    <v-menu
-                      v-model="selectedOpen"
-                      :close-on-content-click="false"
-                      :activator="selectedElement"
-                      offset-x
-                    >
+                  >
+                    <template v-slot:event="{ event }">
+                      {{event.name}}
+                    </template>
+                  </v-calendar>
+                  <v-dialog
+                    v-model="houseworkDialog" 
+                    persistent 
+                    max-width="290"
+                    @click:outside="houseworkDialog=false"
+                  >
+                    <template v-slot:default>
+                      <v-card>
+                        <v-card-title>家事を登録({{ selectedDt.date }})</v-card-title>
+                        <v-divider></v-divider>
+                        <v-container>
+                          <Housework :selectedDt="selectedDt.date"/>
+                        </v-container>
+                        <v-divider></v-divider>
+                        <v-card-actions>
+                          <v-spacer></v-spacer>
+                          <v-btn color="green darken-1" text @click="houseworkDialog=false">閉じる</v-btn>
+                        </v-card-actions>
+                      </v-card>
+                    </template>
+                  </v-dialog>
+                  <v-menu
+                    v-model="selectedOpen"
+                    :close-on-content-click="false"
+                    :activator="selectedElement"
+                    offset-x
+                  >
                     <v-card
                         color="grey lighten-4"
                         min-width="350px"
                         flat
                     >
-                        <v-toolbar
-                        :color="getEventColor(selectedEvent)"
-                        dark
-                        >
-                        <v-toolbar-title v-html="selectedEvent.name"></v-toolbar-title>
-                        <v-spacer></v-spacer>
-                        <span v-html="selectedEvent.actor"></span>
-                        </v-toolbar>
-                        <v-card-text>
-                        <span v-html="selectedEvent.details"></span>
-                        </v-card-text>
-                        <v-card-actions>
-                        <v-btn
-                            text
-                            color="primary"
-                            @click="selectedOpen = false"
-                        >
-                            Close
-                        </v-btn>
-                        </v-card-actions>
+                      <v-toolbar
+                      :color="getEventColor(selectedEvent)"
+                      dark
+                      >
+                      <v-toolbar-title v-html="selectedEvent.name"></v-toolbar-title>
+                      <v-spacer></v-spacer>
+                      <span v-html="selectedEvent.actor"></span>
+                      </v-toolbar>
+                      <v-card-text>
+                      <span v-html="selectedEvent.details"></span>
+                      </v-card-text>
+                      <v-card-actions>
+                      <v-btn
+                          text
+                          color="primary"
+                          @click="selectedOpen = false"
+                      >
+                          Close
+                      </v-btn>
+                      </v-card-actions>
                     </v-card>
-                    </v-menu>
-
+                  </v-menu>
                 </v-sheet>
             </v-col>
             <v-col cols="3">
               <House/>
-              <Housework/>
             </v-col>
         </v-row>
     </v-container>
@@ -115,6 +139,7 @@ import Housework from './Housework.vue'
         week: 'Week',
         day: 'Day',
       },
+      selectedDt: null,
       selectedEvent: {},
       selectedElement: null,
       selectedOpen: false,
@@ -124,7 +149,8 @@ import Housework from './Housework.vue'
         y: 0,
       },
       iconSize: 0, 
-      household: null
+      household: null,
+      houseworkDialog: null
     }),
 
     mounted () {
@@ -167,6 +193,10 @@ import Housework from './Housework.vue'
       },
       next () {
         this.$refs.calendar.next()
+      },
+      showHouseworkDialog (date) {
+        this.selectedDt = date
+        this.houseworkDialog = true
       },
       showEvent ({ nativeEvent, event }) {
         const open = () => {

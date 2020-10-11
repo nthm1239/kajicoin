@@ -3,7 +3,7 @@
     <v-container>
       <v-row>
         <v-col cols="12">
-          <v-icon :size="iconSize">mdi-home</v-icon>
+          <v-icon>mdi-home</v-icon>
           {{household.name}}
         </v-col>
       </v-row>
