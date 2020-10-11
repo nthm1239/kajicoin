@@ -8,22 +8,8 @@
         </v-col>
       </v-row>
       <v-row>
-        <v-col cols="12">
-            <v-data-table
-                :headers="headers"
-                :items="families"
-                hide-default-header
-                hide-default-footer
-            >
-              <template v-slot:[`item.name`]="{ item }">
-                <v-icon :color="item.color">mdi-account</v-icon>
-                {{ item.name }}
-              </template>
-              <template v-slot:[`item.account.balanc`]="{ item }">
-                <v-icon>icon-kjc-coin</v-icon>
-                {{ item.account.balance }}
-              </template>
-            </v-data-table>
+        <v-col cols="6" v-for="member in families" :key="member">
+          <Member :member="member"/>
         </v-col>
       </v-row>
     </v-container>
@@ -33,6 +19,7 @@
 <script>
 import firebase from 'firebase'
 import '@/assets/icomoon/style.css'
+import Member from './Member.vue'
 
   export default {
     name: 'House',
@@ -89,6 +76,7 @@ import '@/assets/icomoon/style.css'
       },
     },
     components: {
+      Member
     },
   }
 </script>
