@@ -28,14 +28,16 @@ export default {
         firebase.auth().signOut()
     },
     onAuth() {
-        firebase.auth().onAuthStateChanged(user => {
+        firebase.auth().onAuthStateChanged(async user => {
             if (user) {
-                firebase.database().ref(`/user/${user.uid}`)
+                let ref = firebase.database().ref()
+                // ログインユーザー情報を取得
+                await ref.child(`/user/${user.uid}`)
                     .once('value',(snapshot) => {
                         user.user = snapshot.val()
-                        store.commit('onAuthStateChanged', user);
-                        store.commit('onUserStatusChanged', true);
                 })
+                store.commit('onAuthStateChanged', user);
+                store.commit('onUserStatusChanged', true);
             } else {
                 store.commit('onAuthStateChanged', {});
                 store.commit('onUserStatusChanged', false);

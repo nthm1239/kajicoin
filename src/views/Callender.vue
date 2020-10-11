@@ -69,7 +69,10 @@
                         <v-card-title>家事を登録({{ selectedDt.date }})</v-card-title>
                         <v-divider></v-divider>
                         <v-container>
-                          <Housework :selectedDt="selectedDt.date"/>
+                          <Housework 
+                            :selectedDt="selectedDt.date"
+                            :householdId="householdId"
+                            :families="families"/>
                         </v-container>
                         <v-divider></v-divider>
                         <v-card-actions>
@@ -115,7 +118,10 @@
                 </v-sheet>
             </v-col>
             <v-col cols="3">
-              <House/>
+              <House 
+                :householdId="householdId"
+                :families="families"
+              />
             </v-col>
         </v-row>
     </v-container>
@@ -129,6 +135,9 @@ import Housework from './Housework.vue'
 
   export default {
     name: 'Callender',
+    props: {
+      user: Object
+    },
     data: () => ({
       focus: '',
       families: [],
@@ -148,37 +157,47 @@ import Housework from './Housework.vue'
         x: 0,
         y: 0,
       },
-      iconSize: 0, 
-      household: null,
+      iconSize: 0,
+      householdId: null,
       houseworkDialog: null
     }),
 
     mounted () {
       this.onResize()
+    },
+    watch: {
+      user: function(newUser) {
+        if(newUser.user) {
+          // 世帯IDを取得
+          this.householdId = newUser.user.households.findIndex((value) => value)
 
-      // 世帯IDを取得
-      this.household = this.$store.getters.user.user.households.findIndex((value) => value)
+          let ref = firebase.database().ref()
 
-      // 家事一覧を取得
-      firebase.database().ref(`/housework/${this.household}`)
-          .once('value',(snapshot) => {
-              for (let key in snapshot.val()) {
-                  this.events.push(snapshot.val()[key])
+          // 家事一覧を取得
+          ref.child(`/housework/${this.householdId}`)
+              .once('value',(snapshot) => {
+                  for (let key in snapshot.val()) {
+                      this.events.push(snapshot.val()[key])
+                  }
+              })
+
+          // 家族一覧を取得
+          ref.child("household").child(this.householdId).child("users")
+              .once('value',(snapshot) => {
+              for (let userId in snapshot.val()) {
+                  ref.child("user").child(userId)
+                  .once('value',(snapshotUser) => {
+                      let userLocal = snapshotUser.val();
+                      ref.child("accounts").child(userLocal.accountId)
+                      .once('value',(snapshotAccount) => {
+                          userLocal.account = snapshotAccount.val();
+                          this.families.push(userLocal)
+                      })
+                  })
               }
           })
-
-      // 家族一覧を取得
-      let ref = firebase.database().ref()
-      ref.child("household").child(this.household).child("users")
-        .once('value',(snapshot) => {
-          for (let userId in snapshot.val()) {
-            ref.child("user").child(userId)
-              .once('value',(snapshotUser) => {
-                this.families.push(snapshotUser.val())
-              })
-          }
-      })
-
+        }
+      }
     },
     methods: {
       onResize () {
@@ -215,7 +234,8 @@ import Housework from './Housework.vue'
       },
       getEventColor (event) {
         if(event.actorUserId != null) {
-          return this.families.filter((user) => user.id == event.actorUserId)[0].color.toString()
+          let actorUser = this.families.filter((user) => user.id == event.actorUserId)[0]
+          return actorUser ? actorUser.color.toString() : null
         } else {
           return "secondary"
         }

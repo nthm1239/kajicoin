@@ -13,12 +13,6 @@
       >
         <v-icon>mdi-calendar</v-icon>
       </v-btn>
-      <v-btn
-        to='/house'
-        icon
-      >
-        <v-icon>mdi-home</v-icon>
-      </v-btn>
       <v-spacer></v-spacer>
       <v-menu offset-y v-if="this.userStatus">
         <template v-slot:activator="{ on, attrs }">
@@ -83,7 +77,7 @@
       <v-container
         fluid
       >
-      <router-view></router-view>
+      <router-view :user="user"></router-view>
       </v-container>
     </v-main>
     <v-footer

@@ -73,11 +73,12 @@ import '@/assets/icomoon/style.css'
     name: 'Housework',
     props: {
       selectedDt: String,
+      householdId: Number,
+      families: Array
     },
     data: () => ({
       actorUserId: '',
       comment: '',
-      families: [],
       menus: [
         { title: 'cook', label: '料理', icon: 'icon-kjc-cook', dialog: false },
         { title: 'washing', label: '洗濯', icon: 'icon-kjc-washing', dialog: false },
@@ -88,8 +89,7 @@ import '@/assets/icomoon/style.css'
       windowSize: {
         x: 0,
         y: 0,
-      },
-      household: null
+      }
     }),
 
     mounted () {
@@ -97,26 +97,6 @@ import '@/assets/icomoon/style.css'
 
       // 
       this.actorUserId = this.$store.getters.user.user.id;
-
-      // 世帯IDを取得
-      this.household = this.$store.getters.user.user.households.findIndex((value) => value)
-
-      // 家族一覧を取得
-      let ref = firebase.database().ref()
-      ref.child("household").child(this.household).child("users")
-        .once('value',(snapshot) => {
-          for (let userId in snapshot.val()) {
-            ref.child("user").child(userId)
-              .once('value',(snapshotUser) => {
-                let user = snapshotUser.val();
-                ref.child("accounts").child(user.accountId)
-                  .once('value',(snapshotAccount) => {
-                    user.account = snapshotAccount.val();
-                    this.families.push(user)
-                  })
-              })
-          }
-      })
 
     },
 
@@ -136,7 +116,7 @@ import '@/assets/icomoon/style.css'
         menu.dialog = false
       },
       register (menu) {
-        firebase.database().ref(`/housework/${this.household}`).push({
+        firebase.database().ref(`/housework/${this.householdId}`).push({
           "name": menu.label,
           "details": this.comment,
           "actorUserId": this.actorUserId,
