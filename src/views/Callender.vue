@@ -171,31 +171,11 @@ import Housework from './Housework.vue'
           // 世帯IDを取得
           this.householdId = newUser.user.households.findIndex((value) => value)
 
-          let ref = firebase.database().ref()
-
           // 家事一覧を取得
-          ref.child(`/housework/${this.householdId}`)
-              .once('value',(snapshot) => {
-                  for (let key in snapshot.val()) {
-                      this.events.push(snapshot.val()[key])
-                  }
-              })
+          this.getHouseworks(this.householdId)
 
           // 家族一覧を取得
-          ref.child("household").child(this.householdId).child("users")
-              .once('value',(snapshot) => {
-              for (let userId in snapshot.val()) {
-                  ref.child("user").child(userId)
-                  .once('value',(snapshotUser) => {
-                      let userLocal = snapshotUser.val();
-                      ref.child("accounts").child(userLocal.accountId)
-                      .once('value',(snapshotAccount) => {
-                          userLocal.account = snapshotAccount.val();
-                          this.families.push(userLocal)
-                      })
-                  })
-              }
-          })
+          this.getFamily(this.householdId)
         }
       }
     },
@@ -240,6 +220,31 @@ import Housework from './Housework.vue'
           return "secondary"
         }
       },
+      getFamily (householdId) {
+        let ref = firebase.database().ref()
+        ref.child("household").child(householdId).child("users")
+          .once('value',(snapshot) => {
+          for (let userId in snapshot.val()) {
+            ref.child("user").child(userId)
+            .once('value',(snapshotUser) => {
+              let userLocal = snapshotUser.val();
+              ref.child("accounts").child(userLocal.accountId)
+              .once('value',(snapshotAccount) => {
+                userLocal.account = snapshotAccount.val();
+                this.families.push(userLocal)
+              })
+            })
+          }
+        })
+      },
+      getHouseworks (householdId) {
+        firebase.database().ref().child(`/housework/${householdId}`)
+          .once('value',(snapshot) => {
+            for (let key in snapshot.val()) {
+              this.events.push(snapshot.val()[key])
+            }
+          })
+      }
     },
     components: {
       House,
