@@ -55,9 +55,9 @@
                     @click:event="showEvent"
                   >
                     <template v-slot:event="{ event }">
-                      {{event.name}}
+                      <v-icon>{{houseworks.find((housework) => housework.label == event.name).icon}}</v-icon>
                     </template>
-                  </v-calendar>
+                    </v-calendar>
                   <v-dialog
                     v-model="houseworkDialog" 
                     persistent 
@@ -72,6 +72,7 @@
                           <Housework 
                             :selectedDt="selectedDt.date"
                             :householdId="householdId"
+                            :houseworks="houseworks"
                             :families="families"/>
                         </v-container>
                         <v-divider></v-divider>
@@ -159,6 +160,7 @@ import Housework from './Housework.vue'
       },
       iconSize: 0,
       householdId: null,
+      houseworks: [],
       houseworkDialog: null
     }),
 
@@ -172,7 +174,10 @@ import Housework from './Housework.vue'
           this.householdId = newUser.user.households.findIndex((value) => value)
 
           // 家事一覧を取得
-          this.getHouseworks(this.householdId)
+          this.getHousework(this.householdId)
+
+          // 家事履歴一覧を取得
+          this.getHouseworkHistory(this.householdId)
 
           // 家族一覧を取得
           this.getFamily(this.householdId)
@@ -237,8 +242,18 @@ import Housework from './Housework.vue'
           }
         })
       },
-      getHouseworks (householdId) {
-        firebase.database().ref().child(`/housework/${householdId}`)
+      getHousework (householdId) {
+        firebase.database().ref().child(`/housework/${householdId}/items`)
+          .once('value',(snapshot) => {
+            for (let key in snapshot.val()) {
+              let menu = snapshot.val()[key]
+              menu.dialog = false
+              this.houseworks.push(menu)
+            }
+          })
+      },
+      getHouseworkHistory (householdId) {
+        firebase.database().ref().child(`/houseworkHistory/${householdId}`)
           .once('value',(snapshot) => {
             for (let key in snapshot.val()) {
               this.events.push(snapshot.val()[key])

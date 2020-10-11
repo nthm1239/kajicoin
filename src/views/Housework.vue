@@ -4,7 +4,7 @@
       <v-row>
         <v-col cols="12">
           <v-row v-resize="onResize" >
-            <v-col cols="6" v-for="menu in menus" v-bind:key="menu.key">
+            <v-col cols="6" v-for="(menu, index) in houseworks" :key="index">
               <v-dialog 
                 v-model="menu.dialog" 
                 persistent 
@@ -53,7 +53,7 @@
                   <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn color="green darken-1" text @click="cancel(menu)">キャンセル</v-btn>
-                    <v-btn color="green darken-1" text @click="register(menu)">完了</v-btn>
+                    <v-btn color="green darken-1" text @click="registerHouseworkHistory(menu)">完了</v-btn>
                   </v-card-actions>
                 </v-card>
               </v-dialog>
@@ -74,18 +74,12 @@ import '@/assets/icomoon/style.css'
     props: {
       selectedDt: String,
       householdId: Number,
+      houseworks: Array,
       families: Array
     },
     data: () => ({
       actorUserId: '',
       comment: '',
-      menus: [
-        { title: 'cook', label: '料理', icon: 'icon-kjc-cook', dialog: false },
-        { title: 'washing', label: '洗濯', icon: 'icon-kjc-washing', dialog: false },
-        { title: 'clean', label: '掃除', icon: 'icon-kjc-clean', dialog: false },
-        { title: 'garbage remove', label: 'ゴミ出し', icon: 'icon-kjc-garbage-remove', dialog: false },
-        { title: 'et cetera', label: 'etc', icon: 'icon-kjc-etcetera', dialog: false },
-      ],
       windowSize: {
         x: 0,
         y: 0,
@@ -95,7 +89,6 @@ import '@/assets/icomoon/style.css'
     mounted () {
       this.onResize()
 
-      // 
       this.actorUserId = this.$store.getters.user.user.id;
 
     },
@@ -115,8 +108,8 @@ import '@/assets/icomoon/style.css'
         this.comment = ''
         menu.dialog = false
       },
-      register (menu) {
-        firebase.database().ref(`/housework/${this.householdId}`).push({
+      registerHouseworkHistory (menu) {
+        firebase.database().ref(`/houseworkHistory/${this.householdId}`).push({
           "name": menu.label,
           "details": this.comment,
           "actorUserId": this.actorUserId,

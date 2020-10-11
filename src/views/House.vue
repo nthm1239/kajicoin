@@ -8,7 +8,7 @@
         </v-col>
       </v-row>
       <v-row>
-        <v-col cols="6" v-for="member in families" :key="member">
+        <v-col cols="6" v-for="(member, index) in families" :key="index">
           <Member :member="member"/>
         </v-col>
       </v-row>
