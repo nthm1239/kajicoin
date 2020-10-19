@@ -13,7 +13,7 @@
               >
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn
-                    color="accent"
+                    color="primary"
                     block
                     v-bind="attrs"
                     v-on="on"
