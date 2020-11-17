@@ -3,8 +3,6 @@ import Router from 'vue-router'
 import Home from './views/Home.vue'
 import Signup from './views/Signup'
 import Signin from './views/Signin'
-import House from './views/House'
-import Housework from './views/Housework'
 import Callender from './views/Callender'
 import firebase from "firebase";
 
@@ -38,18 +36,6 @@ const router = new Router({
       path: '/signup',
       name: 'signup',
       component: Signup
-    },
-    {
-      path: '/house',
-      name: 'house',
-      component: House,
-      meta: { requiresAuth: true }
-    },
-    {
-      path: '/housework',
-      name: 'housework',
-      component: Housework,
-      meta: { requiresAuth: true }
     },
     {
       path: '/callender',

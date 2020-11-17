@@ -44,53 +44,87 @@
                 </v-toolbar>
 
                 <v-sheet :height="windowSize.y * 0.75 ">
-                    <v-calendar
+                  <v-calendar
                     ref="calendar"
                     v-model="focus"
                     color="primary"
                     :type="currentCallenderType"
                     :events="events"
                     :event-color="getEventColor"
+                    @click:date="showHouseworkDialog"
                     @click:event="showEvent"
-                    ></v-calendar>
-                    <v-menu
-                      v-model="selectedOpen"
-                      :close-on-content-click="false"
-                      :activator="selectedElement"
-                      offset-x
-                    >
+                  >
+                    <template v-slot:event="{ event }">
+                      <v-icon>{{houseworks.find((housework) => housework.label == event.name).icon}}</v-icon>
+                    </template>
+                    </v-calendar>
+                  <v-dialog
+                    v-model="houseworkDialog" 
+                    persistent 
+                    max-width="290"
+                    @click:outside="houseworkDialog=false"
+                  >
+                    <template v-slot:default>
+                      <v-card>
+                        <v-card-title>家事を登録({{ selectedDt.date }})</v-card-title>
+                        <v-divider></v-divider>
+                        <v-container>
+                          <Housework 
+                            :selectedDt="selectedDt.date"
+                            :householdId="householdId"
+                            :houseworks="houseworks"
+                            :families="families"/>
+                        </v-container>
+                        <v-divider></v-divider>
+                        <v-card-actions>
+                          <v-spacer></v-spacer>
+                          <v-btn color="green darken-1" text @click="houseworkDialog=false">閉じる</v-btn>
+                        </v-card-actions>
+                      </v-card>
+                    </template>
+                  </v-dialog>
+                  <v-menu
+                    v-model="selectedOpen"
+                    :close-on-content-click="false"
+                    :activator="selectedElement"
+                    offset-x
+                  >
                     <v-card
                         color="grey lighten-4"
                         min-width="350px"
                         flat
                     >
-                        <v-toolbar
-                        :color="getEventColor(selectedEvent)"
-                        dark
-                        >
-                        <v-toolbar-title v-html="selectedEvent.name"></v-toolbar-title>
-                        <v-spacer></v-spacer>
-                        <span v-html="selectedEvent.actor"></span>
-                        </v-toolbar>
-                        <v-card-text>
-                        <span v-html="selectedEvent.details"></span>
-                        </v-card-text>
-                        <v-card-actions>
-                        <v-btn
-                            text
-                            color="primary"
-                            @click="selectedOpen = false"
-                        >
-                            Close
-                        </v-btn>
-                        </v-card-actions>
+                      <v-toolbar
+                      :color="getEventColor(selectedEvent)"
+                      dark
+                      >
+                      <v-toolbar-title v-html="selectedEvent.name"></v-toolbar-title>
+                      <v-spacer></v-spacer>
+                      <span v-html="selectedEvent.actor"></span>
+                      </v-toolbar>
+                      <v-card-text>
+                      <span v-html="selectedEvent.details"></span>
+                      </v-card-text>
+                      <v-card-actions>
+                      <v-btn
+                          text
+                          color="primary"
+                          @click="selectedOpen = false"
+                      >
+                          Close
+                      </v-btn>
+                      </v-card-actions>
                     </v-card>
-                    </v-menu>
-
+                  </v-menu>
                 </v-sheet>
             </v-col>
             <v-col cols="3">
-              <Housework/>
+              <House 
+                :householdId="householdId"
+                :families="families"
+              />
+
+              <CompPie :chart-data="chartData" :options="chartOptions"/>
             </v-col>
         </v-row>
     </v-container>
@@ -99,10 +133,15 @@
 
 <script>
 import firebase from 'firebase'
+import House from './House.vue'
 import Housework from './Housework.vue'
+import CompPie from '@/components/CompPie.vue'
 
   export default {
     name: 'Callender',
+    props: {
+      user: Object
+    },
     data: () => ({
       focus: '',
       families: [],
@@ -113,6 +152,7 @@ import Housework from './Housework.vue'
         week: 'Week',
         day: 'Day',
       },
+      selectedDt: null,
       selectedEvent: {},
       selectedElement: null,
       selectedOpen: false,
@@ -121,36 +161,42 @@ import Housework from './Housework.vue'
         x: 0,
         y: 0,
       },
-      iconSize: 0, 
-      household: null
+      iconSize: 0,
+      householdId: null,
+      houseworks: [],
+      houseworkDialog: null,
+      // ヒント：nullだと初期表示でエラーになる
+      chartData: {
+        labels: [],
+        datasets: []
+      },
+      chartOptions: {
+        plugins: {
+          colorschemes: {
+            scheme: 'tableau.Tableau20',
+          },
+        },
+      }
     }),
-
     mounted () {
       this.onResize()
+    },
+    watch: {
+      user: function(newUser) {
+        if(newUser.user) {
+          // 世帯IDを取得
+          this.householdId = newUser.user.households.findIndex((value) => value)
 
-      // 世帯IDを取得
-      this.household = this.$store.getters.user.user.households.findIndex((value) => value)
+          // 家事一覧を取得
+          this.getHousework(this.householdId)
 
-      // 家事一覧を取得
-      firebase.database().ref(`/housework/${this.household}`)
-          .once('value',(snapshot) => {
-              for (let key in snapshot.val()) {
-                  this.events.push(snapshot.val()[key])
-              }
-          })
+          // 家事履歴一覧を取得
+          this.getHouseworkHistory(this.householdId)
 
-      // 家族一覧を取得
-      let ref = firebase.database().ref()
-      ref.child("household").child(this.household).child("users")
-        .once('value',(snapshot) => {
-          for (let userId in snapshot.val()) {
-            ref.child("user").child(userId)
-              .once('value',(snapshotUser) => {
-                this.families.push(snapshotUser.val())
-              })
-          }
-      })
-
+          // 家族一覧を取得
+          this.getFamily(this.householdId)
+        }
+      }
     },
     methods: {
       onResize () {
@@ -165,6 +211,10 @@ import Housework from './Housework.vue'
       },
       next () {
         this.$refs.calendar.next()
+      },
+      showHouseworkDialog (date) {
+        this.selectedDt = date
+        this.houseworkDialog = true
       },
       showEvent ({ nativeEvent, event }) {
         const open = () => {
@@ -183,14 +233,70 @@ import Housework from './Housework.vue'
       },
       getEventColor (event) {
         if(event.actorUserId != null) {
-          return this.families.filter((user) => user.id == event.actorUserId)[0].color.toString()
+          let actorUser = this.families.filter((user) => user.id == event.actorUserId)[0]
+          return actorUser ? actorUser.color.toString() : null
         } else {
           return "secondary"
         }
       },
+      async getFamily (householdId) {
+        let ref = firebase.database().ref()
+        await ref.child("household").child(householdId).child("users")
+          .once('value',async (snapshot) => {
+            for (let userId in snapshot.val()) {
+              await ref.child("user").child(userId)
+                .once('value',async (snapshotUser) => {
+                  let userLocal = snapshotUser.val();
+                  await ref.child("accounts").child(userLocal.accountId)
+                    .once('value',async(snapshotAccount) => {
+                      userLocal.account = snapshotAccount.val();
+                      this.families.push(userLocal)
+                    })
+                  this.fillData(this.families)
+              })
+            }
+        })
+      },
+      getHousework (householdId) {
+        firebase.database().ref().child(`/housework/${householdId}/items`)
+          .once('value',(snapshot) => {
+            for (let key in snapshot.val()) {
+              let menu = snapshot.val()[key]
+              menu.dialog = false
+              this.houseworks.push(menu)
+            }
+          })
+      },
+      getHouseworkHistory (householdId) {
+        firebase.database().ref().child(`/houseworkHistory/${householdId}`)
+          .once('value',(snapshot) => {
+            for (let key in snapshot.val()) {
+              this.events.push(snapshot.val()[key])
+            }
+          })
+      },
+      fillData(families) {
+        let data = []
+        this.families.forEach((member, index) => {
+          data[index] = this.events.filter(housework => housework.actorUserId == member.id).length
+        });
+
+        this.chartData = {
+          labels: families.map(member => member.name),
+          datasets: [
+            {
+              label: 'Pattern1',
+              backgroundColor: families.map(member => member.color),
+              data: data
+            }
+          ]
+        };
+      }
     },
     components: {
-      Housework
+      House,
+      Housework,
+      CompPie
     },
   }
 </script>

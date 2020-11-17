@@ -4,21 +4,29 @@
       <v-row>
         <v-col cols="12">
           <v-row v-resize="onResize" >
-            <v-col cols="6" v-for="menu in menus" v-bind:key="menu.key">
-              <v-dialog v-model="menu.dialog" persistent max-width="290">
+            <v-col cols="6" v-for="(menu, index) in houseworks" :key="index">
+              <v-dialog 
+                v-model="menu.dialog" 
+                persistent 
+                max-width="290"
+                @click:outside="menu.dialog=false"
+              >
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn
-                    color="accent"
+                    color="primary"
                     block
                     v-bind="attrs"
                     v-on="on"
-                    @click="completeDt = getNowYMDhm()"
                   >
+                    <v-icon>{{ menu.icon }}</v-icon>
                     {{menu.label}}
                   </v-btn>
                 </template>
                 <v-card>
-                  <v-card-title class="headline">{{ menu.label }}</v-card-title>
+                  <v-card-title class="headline">
+                    <v-icon>{{ menu.icon }}</v-icon>
+                    {{ menu.label }}
+                  </v-card-title>
                   <v-card-text>
                     <v-container>
                       <v-row>
@@ -37,7 +45,6 @@
                               />
                             </template>
                           </v-radio-group>
-                          <v-text-field label="実施日時" v-model="completeDt"></v-text-field>
                           <v-text-field label="ひとこと" v-model="comment"></v-text-field>
                         </v-col>
                       </v-row>
@@ -46,7 +53,7 @@
                   <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn color="green darken-1" text @click="cancel(menu)">キャンセル</v-btn>
-                    <v-btn color="green darken-1" text @click="register(menu)">完了</v-btn>
+                    <v-btn color="green darken-1" text @click="registerHouseworkHistory(menu)">完了</v-btn>
                   </v-card-actions>
                 </v-card>
               </v-dialog>
@@ -60,54 +67,29 @@
 
 <script>
 import firebase from 'firebase'
+import '@/assets/icomoon/style.css'
 
   export default {
     name: 'Housework',
-
+    props: {
+      selectedDt: String,
+      householdId: Number,
+      houseworks: Array,
+      families: Array
+    },
     data: () => ({
       actorUserId: '',
       comment: '',
-      completeDt: '',
-      families: [],
-      menus: [
-        { title: 'cook', label: '料理', icon: '', dialog: false },
-        { title: 'washing', label: '洗濯', icon: 'mdi-washing-machine', dialog: false },
-        { title: 'clean', label: '掃除', icon: '', dialog: false },
-        { title: 'garbage remove', label: 'ゴミ出し', icon: '', dialog: false },
-        { title: 'et cetera', label: 'etc', icon: '', dialog: false },
-      ],
       windowSize: {
         x: 0,
         y: 0,
-      },
-      household: null
+      }
     }),
 
     mounted () {
       this.onResize()
 
-      // 
       this.actorUserId = this.$store.getters.user.user.id;
-
-      // 世帯IDを取得
-      this.household = this.$store.getters.user.user.households.findIndex((value) => value)
-
-      // 家族一覧を取得
-      let ref = firebase.database().ref()
-      ref.child("household").child(this.household).child("users")
-        .once('value',(snapshot) => {
-          for (let userId in snapshot.val()) {
-            ref.child("user").child(userId)
-              .once('value',(snapshotUser) => {
-                let user = snapshotUser.val();
-                ref.child("accounts").child(user.accountId)
-                  .once('value',(snapshotAccount) => {
-                    user.account = snapshotAccount.val();
-                    this.families.push(user)
-                  })
-              })
-          }
-      })
 
     },
 
@@ -124,16 +106,15 @@ import firebase from 'firebase'
       cancel (menu) {
         this.actorUserId = this.$store.getters.user.user.id
         this.comment = ''
-        this.completeDt = ''
         menu.dialog = false
       },
-      register (menu) {
-        firebase.database().ref(`/housework/${this.household}`).push({
+      registerHouseworkHistory (menu) {
+        firebase.database().ref(`/houseworkHistory/${this.householdId}`).push({
           "name": menu.label,
           "details": this.comment,
           "actorUserId": this.actorUserId,
-          "start": this.completeDt,
-          "end": this.completeDt,
+          "start": this.selectedDt,
+          "end": this.selectedDt,
           "color": "primary",
           "timed": true
         })
@@ -144,7 +125,6 @@ import firebase from 'firebase'
 
         this.actorUserId = this.$store.getters.user.user.id
         this.comment = ''
-        this.completeDt = ''
         menu.dialog = false
       },
       getNowYMDhm() {

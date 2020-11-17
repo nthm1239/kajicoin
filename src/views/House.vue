@@ -3,19 +3,13 @@
     <v-container>
       <v-row>
         <v-col cols="12">
-          <v-icon :size="iconSize">mdi-home</v-icon>
-          {{household.name}}
+          <v-icon>mdi-home</v-icon>
+          {{ householdName }}
         </v-col>
       </v-row>
       <v-row>
-        <v-col cols="12">
-            <v-data-table
-                :headers="headers"
-                :items="families"
-                hide-default-header
-                hide-default-footer
-            >
-            </v-data-table>
+        <v-col cols="6" v-for="(member, index) in families" :key="index">
+          <Member :member="member"/>
         </v-col>
       </v-row>
     </v-container>
@@ -24,11 +18,18 @@
 
 <script>
 import firebase from 'firebase'
+import '@/assets/icomoon/style.css'
+import Member from './Member.vue'
 
   export default {
     name: 'House',
-
+    props: {
+      householdId: Number,
+      families: Array
+    },
     data: () => ({
+      household: null,
+      householdName: null,
       headers: [
           {
             text: '名前',
@@ -39,46 +40,28 @@ import firebase from 'firebase'
             value: 'account.balance',
           }
       ],
-      families: [],
       windowSize: {
         x: 0,
         y: 0,
       },
-      household: null,
-      householdId: null
     }),
 
     mounted () {
       this.onResize()
+    },
 
-      // 世帯IDを取得
-      this.householdId = this.$store.getters.user.user.households.findIndex((value) => value)
+    watch: {
+      householdId: function(newHouseHoldId) {
+          let ref = firebase.database().ref()
 
-      let ref = firebase.database().ref()
-
-      // 世帯情報を取得
-      ref.child("household").child(this.householdId)
-        .once('value',(snapshot) => {
-            this.household = snapshot.val()
-      })
-
-      // 家族一覧を取得
-      ref.child("household").child(this.householdId).child("users")
-        .once('value',(snapshot) => {
-          for (let userId in snapshot.val()) {
-            ref.child("user").child(userId)
-              .once('value',(snapshotUser) => {
-                let user = snapshotUser.val();
-                ref.child("accounts").child(user.accountId)
-                  .once('value',(snapshotAccount) => {
-                    console.log(snapshotAccount)
-                    user.account = snapshotAccount.val();
-                    this.families.push(user)
-                  })
-              })
-          }
-      })
-
+          // 世帯情報を取得
+          ref.child("household").child(newHouseHoldId)
+              .once('value',(snapshot) => {
+                  //this.household = snapshot.val()
+                  this.household = snapshot.val()
+                  this.householdName = this.household.name
+          })
+      }
     },
 
     computed: {
@@ -93,6 +76,7 @@ import firebase from 'firebase'
       },
     },
     components: {
+      Member
     },
   }
 </script>
