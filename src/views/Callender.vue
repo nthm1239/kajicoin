@@ -123,6 +123,8 @@
                 :householdId="householdId"
                 :families="families"
               />
+
+              <CompPie :chart-data="chartData" :options="chartOptions"/>
             </v-col>
         </v-row>
     </v-container>
@@ -133,6 +135,7 @@
 import firebase from 'firebase'
 import House from './House.vue'
 import Housework from './Housework.vue'
+import CompPie from '@/components/CompPie.vue'
 
   export default {
     name: 'Callender',
@@ -161,9 +164,20 @@ import Housework from './Housework.vue'
       iconSize: 0,
       householdId: null,
       houseworks: [],
-      houseworkDialog: null
+      houseworkDialog: null,
+      // ヒント：nullだと初期表示でエラーになる
+      chartData: {
+        labels: [],
+        datasets: []
+      },
+      chartOptions: {
+        plugins: {
+          colorschemes: {
+            scheme: 'tableau.Tableau20',
+          },
+        },
+      }
     }),
-
     mounted () {
       this.onResize()
     },
@@ -225,21 +239,22 @@ import Housework from './Housework.vue'
           return "secondary"
         }
       },
-      getFamily (householdId) {
+      async getFamily (householdId) {
         let ref = firebase.database().ref()
-        ref.child("household").child(householdId).child("users")
-          .once('value',(snapshot) => {
-          for (let userId in snapshot.val()) {
-            ref.child("user").child(userId)
-            .once('value',(snapshotUser) => {
-              let userLocal = snapshotUser.val();
-              ref.child("accounts").child(userLocal.accountId)
-              .once('value',(snapshotAccount) => {
-                userLocal.account = snapshotAccount.val();
-                this.families.push(userLocal)
+        await ref.child("household").child(householdId).child("users")
+          .once('value',async (snapshot) => {
+            for (let userId in snapshot.val()) {
+              await ref.child("user").child(userId)
+                .once('value',async (snapshotUser) => {
+                  let userLocal = snapshotUser.val();
+                  await ref.child("accounts").child(userLocal.accountId)
+                    .once('value',async(snapshotAccount) => {
+                      userLocal.account = snapshotAccount.val();
+                      this.families.push(userLocal)
+                    })
+                  this.fillData(this.families)
               })
-            })
-          }
+            }
         })
       },
       getHousework (householdId) {
@@ -259,11 +274,29 @@ import Housework from './Housework.vue'
               this.events.push(snapshot.val()[key])
             }
           })
+      },
+      fillData(families) {
+        let data = []
+        this.families.forEach((member, index) => {
+          data[index] = this.events.filter(housework => housework.actorUserId == member.id).length
+        });
+
+        this.chartData = {
+          labels: families.map(member => member.name),
+          datasets: [
+            {
+              label: 'Pattern1',
+              backgroundColor: families.map(member => member.color),
+              data: data
+            }
+          ]
+        };
       }
     },
     components: {
       House,
-      Housework
+      Housework,
+      CompPie
     },
   }
 </script>
