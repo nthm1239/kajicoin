@@ -23,7 +23,7 @@ export default {
   methods: {
     login: function () {
       Firebase.login(this.mailaddress, this.password)
-      this.$router.push('/callender')
+      this.$router.push('/')
     }
   }
 }

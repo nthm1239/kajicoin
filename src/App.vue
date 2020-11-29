@@ -8,7 +8,7 @@
       <!-- <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon> -->
       <v-toolbar-title>Kajicoin</v-toolbar-title>
       <v-btn
-        to='/callender'
+        to='/'
         icon
       >
         <v-icon>mdi-calendar</v-icon>
