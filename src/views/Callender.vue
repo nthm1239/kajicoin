@@ -2,7 +2,7 @@
   <div class="Callender">
     <v-container>
         <v-row>
-            <v-col cols="9">
+            <v-col cols="12" md="9">
                 <v-toolbar flat color="white">
                     <v-btn outlined class="mr-4" color="grey darken-2" @click="setToday">
                         Today
@@ -118,7 +118,7 @@
                   </v-menu>
                 </v-sheet>
             </v-col>
-            <v-col cols="3">
+            <v-col cols="12" md="3">
               <House 
                 :householdId="householdId"
                 :families="families"
