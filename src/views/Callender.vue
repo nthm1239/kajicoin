@@ -73,7 +73,9 @@
                             :selectedDt="selectedDt.date"
                             :householdId="householdId"
                             :houseworks="houseworks"
-                            :families="families"/>
+                            :families="families"
+                            @register-housework-history="reload"
+                            />
                         </v-container>
                         <v-divider></v-divider>
                         <v-card-actions>
@@ -291,6 +293,15 @@ import CompPie from '@/components/CompPie.vue'
             }
           ]
         };
+      },
+      reload() {
+        // 家事履歴一覧を取得
+        this.events = []
+        this.getHouseworkHistory(this.householdId)
+
+        // 家族一覧を取得
+        this.families = []
+        this.getFamily(this.householdId)
       }
     },
     components: {

@@ -126,6 +126,9 @@ import '@/assets/icomoon/style.css'
         this.actorUserId = this.$store.getters.user.user.id
         this.comment = ''
         menu.dialog = false
+
+        // 家事履歴の登録完了
+        this.$emit('register-housework-history');
       },
       getNowYMDhm() {
         var dt = new Date();
