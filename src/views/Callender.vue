@@ -155,6 +155,10 @@ import CompPie from '@/components/CompPie.vue'
         },
         legend: {
           display: false
+        },
+        title: {
+          display: true,
+          text: "家事の回数"
         }
       }
     }),
@@ -265,7 +269,6 @@ import CompPie from '@/components/CompPie.vue'
           labels: families.map(member => member.name),
           datasets: [
             {
-              label: 'Pattern1',
               backgroundColor: families.map(member => member.color),
               data: data
             }
