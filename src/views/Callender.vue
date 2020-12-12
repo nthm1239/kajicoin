@@ -2,6 +2,13 @@
   <div class="Callender">
     <v-container>
         <v-row>
+             <v-col cols="12" md="3">
+              <House 
+                :householdId="householdId"
+                :families="families"
+              />
+              <CompPie :chart-data="chartData" :options="chartOptions"/>
+            </v-col>
             <v-col cols="12" md="9">
                 <v-toolbar flat color="white">
                     <v-btn outlined class="mr-4" color="grey darken-2" @click="setToday">
@@ -13,34 +20,10 @@
                     <v-btn fab text small color="grey darken-2" @click="next">
                         <v-icon small>mdi-chevron-right</v-icon>
                     </v-btn>
+                    <v-spacer></v-spacer>
                     <v-toolbar-title v-if="$refs.calendar">
                         {{ $refs.calendar.title }}
                     </v-toolbar-title>
-                    <v-spacer></v-spacer>
-                    <v-menu bottom right>
-                        <template v-slot:activator="{ on, attrs }">
-                        <v-btn
-                            outlined
-                            color="grey darken-2"
-                            v-bind="attrs"
-                            v-on="on"
-                        >
-                            <span>{{ callenderTypeToLabel[currentCallenderType] }}</span>
-                            <v-icon right>mdi-menu-down</v-icon>
-                        </v-btn>
-                        </template>
-                        <v-list>
-                        <v-list-item @click="currentCallenderType = 'day'">
-                            <v-list-item-title>Day</v-list-item-title>
-                        </v-list-item>
-                        <v-list-item @click="currentCallenderType = 'week'">
-                            <v-list-item-title>Week</v-list-item-title>
-                        </v-list-item>
-                        <v-list-item @click="currentCallenderType = 'month'">
-                            <v-list-item-title>Month</v-list-item-title>
-                        </v-list-item>
-                        </v-list>
-                    </v-menu>
                 </v-toolbar>
 
                 <v-sheet :height="windowSize.y * 0.75 ">
@@ -120,14 +103,6 @@
                   </v-menu>
                 </v-sheet>
             </v-col>
-            <v-col cols="12" md="3">
-              <House 
-                :householdId="householdId"
-                :families="families"
-              />
-
-              <CompPie :chart-data="chartData" :options="chartOptions"/>
-            </v-col>
         </v-row>
     </v-container>
   </div>
@@ -178,6 +153,9 @@ import CompPie from '@/components/CompPie.vue'
             scheme: 'tableau.Tableau20',
           },
         },
+        legend: {
+          display: false
+        }
       }
     }),
     mounted () {
