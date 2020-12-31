@@ -12,15 +12,14 @@
         </v-list-item-avatar>
         <v-list-item-content>
           <v-list-item-title class="justify-center">
-              {{ member.name }}
+            {{ member.name }}
           </v-list-item-title>
           <v-list-item-title class="justify-center">
-              {{ member.account.balance }} P
+            {{ member.account.balance }} P
           </v-list-item-title>
         </v-list-item-content>
       </v-list-item>
     </v-card>
-
   </div>
 </template>
 
