@@ -29,6 +29,7 @@ export default {
     },
     onAuth() {
         firebase.auth().onAuthStateChanged(async user => {
+            let payload = {};
             if (user) {
                 let ref = firebase.database().ref()
                 // ログインユーザー情報を取得
@@ -36,12 +37,73 @@ export default {
                     .once('value',(snapshot) => {
                         user.user = snapshot.val()
                 })
-                store.commit('onAuthStateChanged', user);
+                payload.user = user;
+                payload.householdId = user.user.households.findIndex((value) => value);
+                payload.houseworks = await this.getHousework(payload.householdId);
+                payload.houseworkHistory = await this.getHouseworkHistory(payload.householdId);
+                payload.family = await this.getFamily(payload.householdId);
+                store.commit('onAuthStateChanged', payload);
                 store.commit('onUserStatusChanged', true);
             } else {
-                store.commit('onAuthStateChanged', {});
+                payload.user = {};
+                payload.householdId = -1;
+                payload.houseworks = [];
+                payload.houseworkHistory = [];
+                payload.family = [];
+                store.commit('onAuthStateChanged', payload);
                 store.commit('onUserStatusChanged', false);
             }
         });
+    },
+    async getFamily(householdId) {
+        let family = [];
+        let ref = firebase.database().ref()
+        await ref.child("household").child(householdId).child("users")
+          .once('value',async (snapshot) => {
+            for (let userId in snapshot.val()) {
+              await ref.child("user").child(userId)
+                .once('value',async (snapshotUser) => {
+                  let userLocal = snapshotUser.val();
+                  await ref.child("accounts").child(userLocal.accountId)
+                    .once('value',async(snapshotAccount) => {
+                      userLocal.account = snapshotAccount.val();
+                      family.push(userLocal)
+                    })
+              })
+            }
+        })
+        return family
+      },
+      async getHousework(householdId) {
+        let houseworks = [];
+        await firebase.database().ref().child(`/housework/${householdId}/items`)
+          .once('value',(snapshot) => {
+            for (let key in snapshot.val()) {
+              let menu = snapshot.val()[key]
+              menu.dialog = false
+              houseworks.push(menu)
+            }
+          })
+        return houseworks;
+      },
+      async getHouseworkHistory(householdId) {
+        let houseworkHistory = [];
+        await firebase.database().ref().child(`/houseworkHistory/${householdId}`)
+          .once('value',(snapshot) => {
+            for (let key in snapshot.val()) {
+                houseworkHistory.push(snapshot.val()[key])
+            }
+          })
+        return houseworkHistory;
+    },
+    async reloadHouseworkHistory(householdId) {
+        let payload = {};
+        payload.houseworkHistory = await this.getHouseworkHistory(householdId);
+        store.commit('onHouseworkHistoryStateChanged', payload);
+    },
+    async reloadFamily(householdId) {
+        let payload = {};
+        payload.family = await this.getFamily(householdId);
+        store.commit('onFamilyStateChanged', payload);
     }
 };

@@ -8,7 +8,7 @@
         </v-col>
       </v-row>
       <v-row>
-        <v-col cols="6" v-for="(member, index) in families" :key="index">
+        <v-col cols="6" v-for="(member, index) in family" :key="index">
           <Member :member="member"/>
         </v-col>
       </v-row>
@@ -25,7 +25,7 @@ import Member from './Member.vue'
     name: 'House',
     props: {
       householdId: Number,
-      families: Array
+      family: Array
     },
     data: () => ({
       household: null,

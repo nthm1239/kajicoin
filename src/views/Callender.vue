@@ -5,7 +5,7 @@
              <v-col cols="12" md="3">
               <House 
                 :householdId="householdId"
-                :families="families"
+                :family="family"
               />
               <CompPie :chart-data="chartData" :options="chartOptions"/>
             </v-col>
@@ -32,7 +32,7 @@
                     v-model="focus"
                     color="primary"
                     :type="currentCallenderType"
-                    :events="events"
+                    :events="houseworkHistory"
                     :event-color="getEventColor"
                     @click:date="showHouseworkDialog"
                     @click:event="showEvent"
@@ -56,8 +56,8 @@
                             :selectedDt="selectedDt.date"
                             :householdId="householdId"
                             :houseworks="houseworks"
-                            :families="families"
-                            @register-housework-history="reload"
+                            :family="family"
+                            @register-housework-history="reload(householdId)"
                             />
                         </v-container>
                         <v-divider></v-divider>
@@ -109,7 +109,7 @@
 </template>
 
 <script>
-import firebase from 'firebase'
+import Firebase from './../firebase';
 import House from './House.vue'
 import Housework from './Housework.vue'
 import CompPie from '@/components/CompPie.vue'
@@ -117,11 +117,14 @@ import CompPie from '@/components/CompPie.vue'
   export default {
     name: 'Callender',
     props: {
-      user: Object
+      user: Object,
+      householdId: Number,
+      houseworks: Array,
+      houseworkHistory: Array,
+      family: Array
     },
     data: () => ({
       focus: '',
-      families: [],
       color: '',
       currentCallenderType: 'month',
       callenderTypeToLabel: {
@@ -133,14 +136,11 @@ import CompPie from '@/components/CompPie.vue'
       selectedEvent: {},
       selectedElement: null,
       selectedOpen: false,
-      events: [],
       windowSize: {
         x: 0,
         y: 0,
       },
       iconSize: 0,
-      householdId: null,
-      houseworks: [],
       houseworkDialog: null,
       // ヒント：nullだと初期表示でエラーになる
       chartData: {
@@ -164,22 +164,11 @@ import CompPie from '@/components/CompPie.vue'
     }),
     mounted () {
       this.onResize()
+      this.fillData(this.family)
     },
     watch: {
-      user: function(newUser) {
-        if(newUser.user) {
-          // 世帯IDを取得
-          this.householdId = newUser.user.households.findIndex((value) => value)
-
-          // 家事一覧を取得
-          this.getHousework(this.householdId)
-
-          // 家事履歴一覧を取得
-          this.getHouseworkHistory(this.householdId)
-
-          // 家族一覧を取得
-          this.getFamily(this.householdId)
-        }
+      family: function(newFamily) {
+        this.fillData(newFamily)
       }
     },
     methods: {
@@ -217,72 +206,33 @@ import CompPie from '@/components/CompPie.vue'
       },
       getEventColor (event) {
         if(event.actorUserId != null) {
-          let actorUser = this.families.filter((user) => user.id == event.actorUserId)[0]
+          let actorUser = this.family.filter((user) => user.id == event.actorUserId)[0]
           return actorUser ? actorUser.color.toString() : null
         } else {
           return "secondary"
         }
       },
-      async getFamily (householdId) {
-        let ref = firebase.database().ref()
-        await ref.child("household").child(householdId).child("users")
-          .once('value',async (snapshot) => {
-            for (let userId in snapshot.val()) {
-              await ref.child("user").child(userId)
-                .once('value',async (snapshotUser) => {
-                  let userLocal = snapshotUser.val();
-                  await ref.child("accounts").child(userLocal.accountId)
-                    .once('value',async(snapshotAccount) => {
-                      userLocal.account = snapshotAccount.val();
-                      this.families.push(userLocal)
-                    })
-                  this.fillData(this.families)
-              })
-            }
-        })
-      },
-      getHousework (householdId) {
-        firebase.database().ref().child(`/housework/${householdId}/items`)
-          .once('value',(snapshot) => {
-            for (let key in snapshot.val()) {
-              let menu = snapshot.val()[key]
-              menu.dialog = false
-              this.houseworks.push(menu)
-            }
-          })
-      },
-      getHouseworkHistory (householdId) {
-        firebase.database().ref().child(`/houseworkHistory/${householdId}`)
-          .once('value',(snapshot) => {
-            for (let key in snapshot.val()) {
-              this.events.push(snapshot.val()[key])
-            }
-          })
-      },
-      fillData(families) {
+      fillData(family) {
         let data = []
-        this.families.forEach((member, index) => {
-          data[index] = this.events.filter(housework => housework.actorUserId == member.id).length
-        });
+        if (family != undefined) {
+          family.forEach((member, index) => {
+            data[index] = this.houseworkHistory.filter(housework => housework.actorUserId == member.id).length
+          });
 
-        this.chartData = {
-          labels: families.map(member => member.name),
-          datasets: [
-            {
-              backgroundColor: families.map(member => member.color),
-              data: data
-            }
-          ]
-        };
+          this.chartData = {
+            labels: family.map(member => member.name),
+            datasets: [
+              {
+                backgroundColor: family.map(member => member.color),
+                data: data
+              }
+            ]
+          };
+        }
       },
-      reload() {
-        // 家事履歴一覧を取得
-        this.events = []
-        this.getHouseworkHistory(this.householdId)
-
-        // 家族一覧を取得
-        this.families = []
-        this.getFamily(this.householdId)
+      reload(householdId) {
+        Firebase.reloadHouseworkHistory(householdId)
+        Firebase.reloadFamily(householdId)
       }
     },
     components: {

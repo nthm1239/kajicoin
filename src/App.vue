@@ -77,7 +77,14 @@
       <v-container
         fluid
       >
-      <router-view :user="user"></router-view>
+      <router-view 
+        :user="user"
+        :householdId="householdId"
+        :houseworks="houseworks"
+        :houseworkHistory="houseworkHistory"
+        :family="family"
+      >
+      </router-view>
       </v-container>
     </v-main>
     <v-footer
@@ -105,6 +112,18 @@ import Firebase from './firebase';
     computed: {
       user() {
         return this.$store.getters.user;
+      },
+      householdId() {
+        return this.$store.getters.householdId;
+      },
+      houseworks() {
+        return this.$store.getters.houseworks;
+      },
+      houseworkHistory() {
+        return this.$store.getters.houseworkHistory;
+      },
+      family() {
+        return this.$store.getters.family;
       },
       userStatus() {
         // ログインするとtrue
