@@ -48,7 +48,7 @@ export default {
                 payload.user = {};
                 payload.householdId = -1;
                 payload.houseworks = [];
-                payload.houseworkHistory = [];
+                payload.houseworkHistory = {};
                 payload.family = [];
                 store.commit('onAuthStateChanged', payload);
                 store.commit('onUserStatusChanged', false);
@@ -90,9 +90,7 @@ export default {
         let houseworkHistory = [];
         await firebase.database().ref().child(`/houseworkHistory/${householdId}`)
           .once('value',(snapshot) => {
-            for (let key in snapshot.val()) {
-                houseworkHistory.push(snapshot.val()[key])
-            }
+            houseworkHistory = snapshot.val()
           })
         return houseworkHistory;
     },

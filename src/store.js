@@ -9,7 +9,7 @@ export default new Vuex.Store({
     status: false,
     householdId: -1,
     houseworks: [],
-    houseworkHistory: [],
+    houseworkHistory: {},
     family: []
   },
   mutations: {

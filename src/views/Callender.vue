@@ -32,7 +32,7 @@
                     v-model="focus"
                     color="primary"
                     :type="currentCallenderType"
-                    :events="houseworkHistory"
+                    :events="events"
                     :event-color="getEventColor"
                     @click:date="showHouseworkDialog"
                     @click:event="showEvent"
@@ -120,7 +120,7 @@ import CompPie from '@/components/CompPie.vue'
       user: Object,
       householdId: Number,
       houseworks: Array,
-      houseworkHistory: Array,
+      houseworkHistory: Object,
       family: Array
     },
     data: () => ({
@@ -162,9 +162,16 @@ import CompPie from '@/components/CompPie.vue'
         }
       }
     }),
+    computed: {
+      events() {
+        return Object.values(this.houseworkHistory)
+      } 
+    },
     mounted () {
       this.onResize()
-      this.fillData(this.family)
+      if(this.family != undefined){
+        this.fillData(this.family)
+      }
     },
     watch: {
       family: function(newFamily) {
@@ -214,21 +221,19 @@ import CompPie from '@/components/CompPie.vue'
       },
       fillData(family) {
         let data = []
-        if (family != undefined) {
-          family.forEach((member, index) => {
-            data[index] = this.houseworkHistory.filter(housework => housework.actorUserId == member.id).length
-          });
+        family.forEach((member, index) => {
+          data[index] = Object.keys(this.houseworkHistory).filter(key => this.houseworkHistory[key].actorUserId == member.id).length
+        });
 
-          this.chartData = {
-            labels: family.map(member => member.name),
-            datasets: [
-              {
-                backgroundColor: family.map(member => member.color),
-                data: data
-              }
-            ]
-          };
-        }
+        this.chartData = {
+          labels: family.map(member => member.name),
+          datasets: [
+            {
+              backgroundColor: family.map(member => member.color),
+              data: data
+            }
+          ]
+        };
       },
       reload(householdId) {
         Firebase.reloadHouseworkHistory(householdId)
