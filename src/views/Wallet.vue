@@ -8,7 +8,6 @@
       <v-alert v-if="errMessage" type="error">
         {{errMessage}}
       </v-alert>
-
       <v-card-title>{{currentUser ? currentUser.name : ''}} の ウォレット</v-card-title>
       <v-card-subtitle>{{currentUser ? currentUser.account.address : ''}}</v-card-subtitle>
       <v-divider></v-divider>
