@@ -3,8 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "serve": "vue-cli-service serve --mode local",
+    "dev-serve": "vue-cli-service serve --mode development",
+    "prod-serve": "vue-cli-service serve --mode production",
+    "build": "vue-cli-service build --mode local",
+    "dev-build": "vue-cli-service build --mode development",
+    "prod-build": "vue-cli-service build --mode production",
+    "dev-deploy": "firebase deploy --only hosting:dev",
+    "prod-deploy": "firebase deploy --only hosting:prod",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {

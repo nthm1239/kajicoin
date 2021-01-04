@@ -2,7 +2,12 @@ module.exports = {
   "transpileDependencies": [
     "vuetify"
   ],
+  outputDir: process.env.VUE_APP_BUILD_PATH,
   devServer:{
-    proxy: 'http://localhost:3000'
+    proxy: {
+      "/kajicoins": {
+        target: "http://localhost:3000"
+      }
+    }
   }
 }
