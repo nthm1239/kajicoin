@@ -8,9 +8,6 @@
       <v-alert v-if="errMessage" type="error">
         {{errMessage}}
       </v-alert>
-      <v-alert type="success">
-        {{healthcheck}}
-      </v-alert>
 
       <v-card-title>{{currentUser ? currentUser.name : ''}} の ウォレット</v-card-title>
       <v-card-subtitle>{{currentUser ? currentUser.account.address : ''}}</v-card-subtitle>
@@ -48,13 +45,11 @@ import Kajicoin from './../kajicoin';
       loading: true,
       hiddenButton: true,
       errMessage: '',
-      currentKajicoin : 0,
-      healthcheck : ''
+      currentKajicoin : 0
     }),
     components: {
     },
     mounted() {
-      this.healthcheckCall()
       if(this.currentUser != undefined) {
         this.getKajicoin(this.currentUser.account.address)
       }
@@ -65,16 +60,6 @@ import Kajicoin from './../kajicoin';
       }
     },
     methods: {
-      async healthcheckCall(){
-        this.healthcheck = await Kajicoin.healthcheck()
-        console.log("aaa")
-          // .then((res) => {
-          //   this.healthcheck = res
-          // })
-          // .catch((e) => {
-          //   console.log(e)
-          // })
-      },
       getKajicoin(address) {
         Kajicoin.getKajicoin(address)
           .then((response) => {
