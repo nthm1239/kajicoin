@@ -60,7 +60,7 @@ import Kajicoin from './../kajicoin';
     },
     methods: {
       getKajicoin(address) {
-        Kajicoin.getKajicoin(address)
+        Kajicoin.getKajicoin(this.currentUser.id, address)
           .then((response) => {
             this.currentKajicoin = response.data.point
             this.loading = false
@@ -69,15 +69,6 @@ import Kajicoin from './../kajicoin';
             } else {
               this.hiddenButton = true
             }
-          })
-          .catch((e) => {
-            this.displayErrorWallet(e)
-          });        
-      },
-      putKajicoin(address, ammount) {
-        Kajicoin.putKajicoin(address, ammount)
-          .then(async() => {
-            await this.loadWalletAsync(address)
           })
           .catch((e) => {
             this.displayErrorWallet(e)

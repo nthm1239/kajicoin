@@ -88,7 +88,7 @@ export default {
         }
       },
       putKajicoinUnit(key, address) {
-        Kajicoin.putKajicoin(address, 10)
+        Kajicoin.putKajicoin(this.currentUser.id, address, 10)
           .then(async() => {
             await this.$refs.Wallet.loadWalletAsync(address)
             this.updateHouseworkHistoryAchieved(key)
@@ -101,7 +101,7 @@ export default {
         let keys = this.unachivedHouseworkHistoryDataResource
           .map((element) => element.key)
         let ammount = keys.length * 10;
-        Kajicoin.putKajicoin(address, ammount)
+        Kajicoin.putKajicoin(this.currentUser.id, address, ammount)
           .then(async() => {
             await this.$refs.Wallet.loadWalletAsync(address)
             this.updateHouseworkHistoryAchievedBulk(keys)
