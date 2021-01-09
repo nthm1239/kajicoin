@@ -80,7 +80,7 @@ import Kajicoin from './../kajicoin';
         return new Promise(resolve => {
           setTimeout(() => {
             resolve(this.getKajicoin(address))
-          }, 5000)
+          }, process.env.VUE_APP_KAJICOIN_API_TIMEOUT_SECONDS * 1000)
         })
       },
       displayErrorWallet(error) {
