@@ -24,7 +24,6 @@
         :data-sources="houseworkHistoryDataResource"
         :data-component="houseworkHistoryItemComponent"
         :extra-props="{ currentUser: currentUser, householdId: householdId, houseworks: houseworks, family: family }"
-        @request-kajicoin-unit="console.log($event)"
       />
     </v-container>
   </div>
