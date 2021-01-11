@@ -13,6 +13,13 @@
       >
         <v-icon>mdi-calendar</v-icon>
       </v-btn>
+      <v-btn
+        to='/houseworkHistory'
+        icon
+      >
+        <v-icon>mdi-wallet</v-icon>
+      </v-btn>
+
       <v-spacer></v-spacer>
       <v-menu offset-y v-if="this.userStatus">
         <template v-slot:activator="{ on, attrs }">
@@ -77,7 +84,15 @@
       <v-container
         fluid
       >
-      <router-view :user="user"></router-view>
+      <router-view 
+        :user="user"
+        :householdId="householdId"
+        :houseworks="houseworks"
+        :houseworkHistory="houseworkHistory"
+        :family="family"
+        :currentUser="family.find((member)=>member.id == user.uid)"
+      >
+      </router-view>
       </v-container>
     </v-main>
     <v-footer
@@ -105,6 +120,18 @@ import Firebase from './firebase';
     computed: {
       user() {
         return this.$store.getters.user;
+      },
+      householdId() {
+        return this.$store.getters.householdId;
+      },
+      houseworks() {
+        return this.$store.getters.houseworks;
+      },
+      houseworkHistory() {
+        return this.$store.getters.houseworkHistory;
+      },
+      family() {
+        return this.$store.getters.family;
       },
       userStatus() {
         // ログインするとtrue

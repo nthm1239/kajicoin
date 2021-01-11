@@ -32,13 +32,13 @@
                       <v-row>
                         <v-col cols="12">
                           <v-radio-group
-                            :items="families" 
+                            :items="family" 
                             item-text="name"
                             item-value="id"
                             v-model="actorUserId"
                             row
                             >
-                            <template v-for="user in families">
+                            <template v-for="user in family">
                               <v-radio :key="user.id"
                                 :label="user.name"
                                 :value="user.id"
@@ -75,7 +75,7 @@ import '@/assets/icomoon/style.css'
       selectedDt: String,
       householdId: Number,
       houseworks: Array,
-      families: Array
+      family: Array
     },
     data: () => ({
       actorUserId: '',
@@ -120,7 +120,7 @@ import '@/assets/icomoon/style.css'
         })
 
         // 残高を更新
-        let account = this.families[this.families.findIndex((user) => user.id === this.actorUserId)].account
+        let account = this.family[this.family.findIndex((user) => user.id === this.actorUserId)].account
         firebase.database().ref(`/accounts/${account.accountId}/balance`).set(account.balance + 10)
 
         this.actorUserId = this.$store.getters.user.user.id

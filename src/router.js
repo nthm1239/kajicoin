@@ -4,6 +4,7 @@ import Router from 'vue-router'
 import Signup from './views/Signup'
 import Signin from './views/Signin'
 import Callender from './views/Callender'
+import HouseworkHistory from './views/HouseworkHistory'
 import firebase from "firebase";
 
 Vue.use(Router)
@@ -16,6 +17,12 @@ const router = new Router({
       path: '/',
       name: 'callender',
       component: Callender,
+      meta: { requiresAuth: true}
+    },
+    {
+      path: '/houseworkHistory',
+      name: 'houseworkHistory',
+      component: HouseworkHistory,
       meta: { requiresAuth: true}
     },
     {
