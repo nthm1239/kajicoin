@@ -16,11 +16,6 @@
         <v-row align="center">
           <v-col cols="3">
             <v-icon class="display-3" color="orange">mdi-alpha-k-circle</v-icon>
-            <!-- <v-img
-              src="https://cdn.vuetifyjs.com/images/cards/sun.png"
-              alt="Sunny image"
-              width="92"
-            ></v-img> -->
           </v-col>
           <v-col class="display-2" cols="9">
             {{currentKajicoin}} KJC
