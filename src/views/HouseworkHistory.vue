@@ -58,11 +58,13 @@ export default {
       houseworkHistoryDataResource: function() {
         return Object.entries(this.houseworkHistory)
           .map(([key, value]) => ({key, value}))
-          .filter((element) => this.currentUser && element.value.actorUserId == this.currentUser.id)  // 自身の家事履歴
           .reverse(); // 降順
       },
       unachivedHouseworkHistoryDataResource: function() {
-        return this.houseworkHistoryDataResource
+        return Object.entries(this.houseworkHistory)
+          .map(([key, value]) => ({key, value}))
+          .filter((element) => this.currentUser && element.value.actorUserId == this.currentUser.id)  // 自身の家事履歴
+          .reverse() // 降順
           .filter((element) => element.value.achieved != true)  // 未獲得
       }
     },
